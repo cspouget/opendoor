@@ -9,6 +9,7 @@ import react from '@vitejs/plugin-react';
 const repository = process.env.GITHUB_REPOSITORY?.split('/')[1];
 
 export default defineConfig({
-  base: repository ? `/${repository}/` : '/',
+  base: process.env.OPENROOM_BASE || (repository ? `/${repository}/` : '/'),
   plugins: [react()],
+  server: { proxy: { '/api': 'http://127.0.0.1:3001' } },
 });
