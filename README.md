@@ -51,7 +51,7 @@ Deploy the included Dockerfile to a Node/container host with HTTPS, a continuous
 
 `docker run --env-file .env -p 3001:3001 openroom`
 
-Do not use the old GitHub Pages workflow for this live pilot: Pages cannot run its API. That workflow is now manual and clearly labeled as solo-preview deployment. No automatic paid infrastructure provisioning is included.
+GitHub Pages cannot run the live meeting API. The included GitHub Pages workflow publishes only the solo preview after automated access-control and browser checks pass. No automatic paid infrastructure provisioning is included.
 
 ## Verification
 

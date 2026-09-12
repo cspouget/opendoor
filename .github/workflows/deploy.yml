@@ -1,47 +1,53 @@
-name: Deploy solo preview to GitHub Pages
-
+name: Verify and publish OpenRoom preview
 on:
+  push:
+    branches: [main]
+  pull_request:
   workflow_dispatch:
-
 permissions:
   contents: read
-  pages: write
-  id-token: write
-
 concurrency:
-  group: 'pages'
+  group: openroom-${{ github.ref }}
   cancel-in-progress: true
-
 jobs:
-  build:
+  verify:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
         with:
           node-version: '22'
-
-      - name: Install dependencies
-        run: npm ci
-
-      - name: Build
+          cache: npm
+      - run: npm ci
+      - run: npm test
+      - name: Build for browser checks
         run: npm run build
-
-      - name: Upload artifact
-        uses: actions/upload-pages-artifact@v4
+        env:
+          VITE_STATIC_PREVIEW: 'true'
+          OPENROOM_BASE: /
+      - run: npx playwright install --with-deps chromium
+      - run: npm run test:browser
+      - name: Build for GitHub Pages
+        run: npm run build
+        env:
+          VITE_STATIC_PREVIEW: 'true'
+      - uses: actions/upload-pages-artifact@v4
+        if: github.event_name != 'pull_request'
         with:
-          path: ./dist
-
+          path: dist
   deploy:
+    if: github.event_name != 'pull_request'
+    needs: verify
     runs-on: ubuntu-latest
-    needs: build
+    permissions:
+      pages: write
+      id-token: write
     environment:
       name: github-pages
-      url: ${{ steps.deploy.outputs.page_url }}
+      url: ${{ steps.deployment.outputs.page_url }}
     steps:
-      - name: Deploy solo preview to GitHub Pages
-        id: deploy
-        uses: actions/deploy-pages@v4
+      - uses: actions/configure-pages@v5
+        with:
+          enablement: true
+      - uses: actions/deploy-pages@v4
+        id: deployment
