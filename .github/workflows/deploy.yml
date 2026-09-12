@@ -1,9 +1,7 @@
-name: Deploy to GitHub Pages
+name: Deploy solo preview to GitHub Pages
 
 on:
-  # Automatically deploy when pushing to the default branch
-  push:
-    branches: [ "main", "master" ]
+  workflow_dispatch:
 
 permissions:
   contents: read
@@ -24,10 +22,10 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: '18'
+          node-version: '22'
 
       - name: Install dependencies
-        run: npm install
+        run: npm ci
 
       - name: Build
         run: npm run build
@@ -44,6 +42,6 @@ jobs:
       name: github-pages
       url: ${{ steps.deploy.outputs.page_url }}
     steps:
-      - name: Deploy to GitHub Pages
+      - name: Deploy solo preview to GitHub Pages
         id: deploy
         uses: actions/deploy-pages@v4

@@ -11,4 +11,5 @@ const repository = process.env.GITHUB_REPOSITORY?.split('/')[1];
 export default defineConfig({
   base: repository ? `/${repository}/` : '/',
   plugins: [react()],
+  server: { proxy: { '/api': 'http://127.0.0.1:3001' } },
 });
